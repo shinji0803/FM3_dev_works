@@ -2,6 +2,9 @@
 #include "timer.h"
 
 static volatile uint32_t usec = 0;
+static volatile uint32_t usec_delay_counter = 0;
+
+static inline void TimingDelay_Decrement(void);
 
 void Init_timer(){
 	
@@ -30,6 +33,8 @@ void Init_DT(void){
 
 void SysTick_Handler(void){
 	usec ++;
+	
+	TimingDelay_Decrement();
 }
 
 void DT_Handler(void){	//DTŠ„‚İƒnƒ“ƒhƒ‰: 0.001sec–ˆ
@@ -79,22 +84,22 @@ uint32_t get_millis(){
 	return (uint32_t)(usec / 1000);
 }
 
-void wait_usec(uint32_t length){
-	uint32_t dummy_count = 0;
-	uint32_t now = usec;
-	while(usec < (now + length)){
-		dummy_count ++;
-	}		
+void wait_usec(__IO uint32_t length){
 	
-	return;
+	usec_delay_counter = length;
+	
+	while(usec_delay_counter != 0);
 }
 
-void wait(uint32_t length){
-	uint32_t dummy_count = 0;
-	uint32_t now = get_millis();
-	while(get_millis() < (now + length)){
-		dummy_count ++;
-	}
+void wait(__IO uint32_t length){
 	
-	return;
+	usec_delay_counter = length * 1000;
+	
+	while(usec_delay_counter != 0);
+}
+
+static inline void TimingDelay_Decrement(){
+	if (usec_delay_counter != 0x00){
+		usec_delay_counter --;
+	}
 }
