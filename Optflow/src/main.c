@@ -115,12 +115,12 @@ static void read_trim(radio *r){
 	uint16_t data[2] = { 0, 0};
 	
 	printf("Reading Radio Trim. Don't move sticks.\r\n");
-	printf("Reading");
+	cputs("Reading");
 
 	while(count < 5){
 		data[0] += rc_read(0);
 		data[1] += rc_read(1);
-		printf(".");
+		cputs(".");
 		wait(300);
 		count ++;
 	}

@@ -12,14 +12,14 @@ void init_cli(flow_data *f, gain *g, radio *r){
 }
 
 void top_menu(){
-	printf("---------------------------\r\n");
-	printf("-- Test Console ver1.4 ---\r\n");
-	printf("---------------------------\r\n");
+	printf("----------------------------\r\n");
+	printf("--  Test Console ver1.5  ---\r\n");
+	printf("----------------------------\r\n");
 	printf("r: read radio\r\n");
 	printf("f: read flow\r\n");
 	printf("w: read radio and flow\r\n");
 	printf("g: set gain\r\n");
-	printf("---------------------------\r\n");
+	printf("----------------------------\r\n");
 }	
 
 void gain_menu(){
