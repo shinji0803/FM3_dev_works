@@ -1,0 +1,79 @@
+トレースバッファオン
+nop           0.01 usec/call
+micros()      0.09 usec/call
+millis()      0.16 usec/call
+fadd          0.50 usec/call
+fsub          0.51 usec/call
+fmul          0.27 usec/call
+fdiv /=       0.23 usec/call
+fdiv 2/x      0.22 usec/call
+dadd          0.76 usec/call
+dsub          0.76 usec/call
+dmul          0.40 usec/call
+ddiv          0.51 usec/call
+sin()        12.84 usec/call
+cos()        10.57 usec/call
+tan()        21.58 usec/call
+acos()       13.39 usec/call
+asin()       12.41 usec/call
+atan2()      17.90 usec/call
+sqrt()        3.48 usec/call
+iadd8         0.05 usec/call
+isub8         0.05 usec/call
+imul8         0.05 usec/call
+idiv8         0.05 usec/call
+iadd16        0.05 usec/call
+isub16        0.05 usec/call
+imul16        0.05 usec/call
+idiv16        0.08 usec/call
+iadd32        0.04 usec/call
+isub32        0.04 usec/call
+imul32        0.04 usec/call
+idiv32        0.05 usec/call
+iadd64        0.10 usec/call
+isub64        0.10 usec/call
+imul64        0.14 usec/call
+idiv64        2.03 usec/call
+memcpy128     1.35 usec/call
+memset128     1.03 usec/call
+wait(1)     996.41 usec/call
+
+トレースバッファオフ
+nop           0.01 usec/call
+micros()      0.15 usec/call
+millis()      0.18 usec/call
+fadd          0.80 usec/call
+fsub          0.80 usec/call
+fmul          0.55 usec/call
+fdiv /=       0.39 usec/call
+fdiv 2/x      1.76 usec/call
+dadd          1.01 usec/call
+dsub          1.09 usec/call
+dmul          0.51 usec/call
+ddiv          0.78 usec/call
+sin()        20.48 usec/call
+cos()        20.62 usec/call
+tan()        30.07 usec/call
+acos()       29.76 usec/call
+asin()       33.34 usec/call
+atan2()      28.87 usec/call
+sqrt()        5.02 usec/call
+iadd8         0.06 usec/call
+isub8         0.05 usec/call
+imul8         0.05 usec/call
+idiv8         0.08 usec/call
+iadd16        0.06 usec/call
+isub16        0.05 usec/call
+imul16        0.05 usec/call
+idiv16        0.08 usec/call
+iadd32        0.05 usec/call
+isub32        0.05 usec/call
+imul32        0.05 usec/call
+idiv32        0.05 usec/call
+iadd64        0.10 usec/call
+isub64        0.10 usec/call
+imul64        0.14 usec/call
+idiv64        3.02 usec/call
+memcpy128     1.83 usec/call
+memset128     1.51 usec/call
+
