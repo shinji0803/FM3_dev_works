@@ -24,6 +24,14 @@ typedef struct vector3f{
 	float x, y, z;
 } vector3f;
 
+/*
+typedef struct Matrix3f{
+	vector3f a;
+	vector3f b;
+	vector3f c;	
+} Matrix3f;
+*/
+
 typedef struct{
 	float p_gain;
 	float i_gain;

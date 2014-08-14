@@ -12,28 +12,16 @@
 #define ACC_ADDRESS (0x30 >> 1)
 #define MAG_ADDRESS (0x3C >> 1)
 
-vector3f a; // accelerometer readings
-vector3f m; // magnetometer readings
-vector3f m_max; // maximum magnetometer values, used for calibration
-vector3f m_min; // minimum magnetometer values, used for calibration
-
-// Constructors ////////////////////////////////////////////////////////////////
-
-/*
-LSM303DLH::LSM303DLH(void)
-{
-	// These are just some values for a particular unit; it is recommended that
-	// a calibration be done for your particular unit.
-	m_max.x = +540; m_max.y = +500; m_max.z = 180;
-	m_min.x = -520; m_min.y = -570; m_min.z = -770;
-}
-*/
+static vector3f a; // accelerometer readings
+static vector3f m; // magnetometer readings
+static vector3f m_max; // maximum magnetometer values, used for calibration
+static vector3f m_min; // minimum magnetometer values, used for calibration
 
 // Public Methods //////////////////////////////////////////////////////////////
 
 // Turns on the LSM303DLH's accelerometer and magnetometers and places them in normal
 // mode.
-void enableDefault(void)
+void LSM303DLH_Init(void)
 {	
 	// Enable Accelerometer
 	// 0x27 = 0b00100111
@@ -102,7 +90,7 @@ uint8_t readMagReg(uint8_t reg)
 }
 
 // Reads the 3 accelerometer channels and stores them in vector a
-void readAcc(void)
+vector3f readAcc(void)
 {
 	int32_t size;
 	uint8_t data[8];
@@ -127,10 +115,12 @@ void readAcc(void)
 	a.x = (int16_t)((xha << 8) | xla);
 	a.y = (int16_t)((yha << 8) | yla);
 	a.z = (int16_t)((zha << 8) | zla);
+	
+	return a;
 }
 
 // Reads the 3 magnetometer channels and stores them in vector m
-void readMag(void)
+vector3f readMag(void)
 {
 	int32_t size;
 	uint8_t data[8];
@@ -154,6 +144,8 @@ void readMag(void)
 	m.x = (int16_t)(xhm << 8 | xlm);
 	m.y = (int16_t)(yhm << 8 | ylm);
 	m.z = (int16_t)(zhm << 8 | zlm);
+	
+	return m;
 }
 
 // Reads all 6 channels of the LSM303DLH and stores them in the object variables

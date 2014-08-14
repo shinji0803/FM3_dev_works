@@ -48,21 +48,15 @@
 #define LSM303DLH_IRC_REG_M         0x0C
 
 
-
-extern vector3f a; // accelerometer readings
-extern vector3f m; // magnetometer readings
-extern vector3f m_max; // maximum magnetometer values, used for calibration
-extern vector3f m_min; // minimum magnetometer values, used for calibration
-
-void enableDefault(void);
+void LSM303DLH_Init(void);
 	
 void writeAccReg(uint8_t reg, uint8_t value);
 uint8_t readAccReg(uint8_t reg);
 void writeMagReg(uint8_t reg, uint8_t value);
 uint8_t readMagReg(uint8_t reg);
 	
-void readAcc(void);
-void readMag(void);
+vector3f readAcc(void);
+vector3f readMag(void);
 void read(void);
 
 //int heading(void);

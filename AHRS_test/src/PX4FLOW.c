@@ -4,6 +4,10 @@
 static uint8_t data[64];
 static flow_data *flow;
 
+static int scaling_factors[] = { 37548, 18774, 12516, 9387, 7510, 3755, 1877, 939};
+
+static vector3f get_gyro_info(void);
+
 void px4f_init(flow_data *f){
 	//PX4 Flow
 	i2c->Cfg.SlaveAddr = PX4F_ADD; 
@@ -23,6 +27,10 @@ void px4f_update(){
 	i2c->DataTx(&data_tx, &size);
 	size= 22;
 	i2c->DataRx(data, &size);
+}
+
+void px4f_get_raw(uint8_t raw[]){
+	memcpy( raw, data, 22);
 }
 
 void calc_flow(){
@@ -52,7 +60,6 @@ void calc_flow(){
 	//flow->x += (flow->flow_comp_m_x / 1000.f) * 0.02f;
 	//flow->y += (flow->flow_comp_m_y / 1000.f) * 0.02f;
 	
-	
 	r.b[0] = data[12];
 	r.b[1] = data[13];
 	flow->gyro_x_rate = (int16_t)r.i;
@@ -66,4 +73,32 @@ void calc_flow(){
 	r.b[0] = data[20];
 	r.b[1] = data[21];
 	flow->ground_distance = (int16_t)r.i;
+}
+
+vector3f px4f_get_gyro(){	
+	px4f_update();
+	
+	return get_gyro_info();
+}
+
+static vector3f get_gyro_info(){
+	vector3f g;
+	int g_scale;
+	
+	generic_16bit r;
+	
+	if(data[18] > 7) data[18] = 7;
+	g_scale = scaling_factors[data[18]];
+	
+	r.b[0] = data[12];
+	r.b[1] = data[13];
+	g.x = ((int16_t)r.i) / (float)g_scale;
+	r.b[0] = data[14];
+	r.b[1] = data[15];
+	g.y = ((int16_t)r.i) / (float)g_scale;
+	r.b[0] = data[16];
+	r.b[1] = data[17];
+	g.z = ((int16_t)r.i) / (float)g_scale;
+	
+	return g;
 }

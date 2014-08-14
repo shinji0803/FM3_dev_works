@@ -16,7 +16,10 @@ void px4f_init(flow_data *f);
 
 void px4f_update(void);
 
+void px4f_get_raw(uint8_t raw[]);
+
 void calc_flow(void);
 
+vector3f px4f_get_gyro(void);
 
 #endif
