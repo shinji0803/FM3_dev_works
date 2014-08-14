@@ -3,6 +3,7 @@
 #define PX4_FLOW_H
 
 //PX4 Flow‚Ìƒf[ƒ^ˆ—•”•ª
+#include <string.h>
 
 #include "i2c.h"
 #include "rc_io.h"
@@ -20,6 +21,6 @@ void px4f_get_raw(uint8_t raw[]);
 
 void calc_flow(void);
 
-vector3f px4f_get_gyro(void);
+Vector3f px4f_get_gyro(void);
 
 #endif

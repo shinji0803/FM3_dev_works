@@ -8,6 +8,7 @@
 #include "rc_io.h"
 #include "fram.h"
 
+#include "myMath.h"
 #include "PX4FLOW.h"
 #include "AHRS.h"
 
@@ -26,7 +27,7 @@ int32_t main(void){
 	uint32_t start, end;
 	
 	flow_data fData;
-	vector3f gyro;
+	Vector3f gyro, acc;
 	
 	//èâä˙âªäJén
 	conio_init(57600UL);
@@ -45,16 +46,18 @@ int32_t main(void){
 	
 	px4f_init(&fData);
 	AHRS_Init();
-	
-	uint8_t rawData[22];
+		
 	while(1){
-		//px4f_update();
-		//px4f_get_raw(rawData);
+		start = get_micros();
 		gyro = AHRS_get_gyro();
+		acc = AHRS_get_acc();
+		end = get_micros();
 		
 		if(p_flg == 1){
 			p_flg = 0;
-			printf("%f, %f, %f \r\n", gyro.x, gyro.y, gyro.z);
+			printf("%4ld ", (end - start));
+			printf("%+6.4f, %+6.4f, %+6.4f ", gyro.x, gyro.y, gyro.z);
+			printf("%+6.4f, %+6.4f, %+6.4f \r\n", acc.x, acc.y, acc.z);
 			//for(int i = 0; i < 22; i ++) printf("%x ", rawData[i]);
 			//printf("\r\n");
 		}

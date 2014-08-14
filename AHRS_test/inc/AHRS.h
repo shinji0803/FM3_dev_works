@@ -18,6 +18,7 @@
 
 void AHRS_Init(void);
 
-vector3f AHRS_get_gyro(void);
+Vector3f AHRS_get_gyro(void);
+Vector3f AHRS_get_acc(void);
 
 #endif

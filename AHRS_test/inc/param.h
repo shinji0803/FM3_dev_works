@@ -20,17 +20,16 @@ typedef union __generic_64bit{
 	int64_t ll;
 } generic_64bit;
 
-typedef struct vector3f{
-	float x, y, z;
-} vector3f;
 
-/*
+typedef struct Vector3f{
+	float x, y, z;
+} Vector3f;
+
 typedef struct Matrix3f{
-	vector3f a;
-	vector3f b;
-	vector3f c;	
+	Vector3f a;
+	Vector3f b;
+	Vector3f c;	
 } Matrix3f;
-*/
 
 typedef struct{
 	float p_gain;

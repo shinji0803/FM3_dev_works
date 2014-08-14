@@ -12,10 +12,10 @@
 #define ACC_ADDRESS (0x30 >> 1)
 #define MAG_ADDRESS (0x3C >> 1)
 
-static vector3f a; // accelerometer readings
-static vector3f m; // magnetometer readings
-static vector3f m_max; // maximum magnetometer values, used for calibration
-static vector3f m_min; // minimum magnetometer values, used for calibration
+static Vector3f a; // accelerometer readings
+static Vector3f m; // magnetometer readings
+static Vector3f m_max; // maximum magnetometer values, used for calibration
+static Vector3f m_min; // minimum magnetometer values, used for calibration
 
 // Public Methods //////////////////////////////////////////////////////////////
 
@@ -90,7 +90,7 @@ uint8_t readMagReg(uint8_t reg)
 }
 
 // Reads the 3 accelerometer channels and stores them in vector a
-vector3f readAcc(void)
+Vector3f readAcc(void)
 {
 	int32_t size;
 	uint8_t data[8];
@@ -120,7 +120,7 @@ vector3f readAcc(void)
 }
 
 // Reads the 3 magnetometer channels and stores them in vector m
-vector3f readMag(void)
+Vector3f readMag(void)
 {
 	int32_t size;
 	uint8_t data[8];
@@ -152,7 +152,7 @@ vector3f readMag(void)
 void read(void)
 {
 	readAcc();
-	//readMag();
+	readMag();
 }
 
 // Returns the number of degrees from the -Y axis that it
@@ -175,21 +175,21 @@ int heading(void)
 // horizontal plane. The From vector is projected into the horizontal
 // plane and the angle between the projected vector and north is
 // returned.
-int heading(vector3f from)
+int heading(Vector3f from)
 {
     // shift and scale
     m.x = (m.x - m_min.x) / (m_max.x - m_min.x) * 2 - 1.0;
     m.y = (m.y - m_min.y) / (m_max.y - m_min.y) * 2 - 1.0;
     m.z = (m.z - m_min.z) / (m_max.z - m_min.z) * 2 - 1.0;
 
-    vector3f temp_a = a;
+    Vector3f temp_a = a;
     // normalize
     vector_normalize(&temp_a);
     //vector_normalize(&m);
 
     // compute E and N
-    vector3f E;
-    vector3f N;
+    Vector3f E;
+    Vector3f N;
     vector_cross(&m, &temp_a, &E);
     vector_normalize(&E);
     vector_cross(&temp_a, &E, &N);
@@ -201,19 +201,19 @@ int heading(vector3f from)
 	return heading;
 }
 
-void vector_cross(const vector3f *a,const vector3f *b, vector3f *out)
+void vector_cross( const Vector3f *a, const Vector3f *b, Vector3f *out)
 {
-  out->x = a->y*b->z - a->z*b->y;
-  out->y = a->z*b->x - a->x*b->z;
-  out->z = a->x*b->y - a->y*b->x;
+  out->x = a->y * b->z - a->z * b->y;
+  out->y = a->z * b->x - a->x * b->z;
+  out->z = a->x * b->y - a->y * b->x;
 }
 
-float vector_dot(const vector3f *a,const vector3f *b)
+float vector_dot( const Vector3f *a, const Vector3f *b)
 {
-  return a->x*b->x+a->y*b->y+a->z*b->z;
+  return a->x * b->x + a->y * b->y + a->z * b->z;
 }
 
-void vector_normalize(vector3f *a)
+void vector_normalize(Vector3f *a)
 {
   float mag = sqrt(vector_dot(a,a));
   a->x /= mag;

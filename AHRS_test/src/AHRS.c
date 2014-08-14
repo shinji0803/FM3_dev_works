@@ -1,14 +1,14 @@
 
 #include "AHRS.h"
 
-static float dcm_matrix[3][3];
+static Matrix3f dcm_matrix;
 
 static float accScale;
-static vector3f gyroOffset;
+static Vector3f gyroOffset;
 
 void AHRS_Init(){
-	vector3f temp = { 0.0f, 0.0f, 0.0f};
-	vector3f sum = { 0.0f, 0.0f, 0.0f};
+	Vector3f temp = { 0.0f, 0.0f, 0.0f};
+	Vector3f sum = { 0.0f, 0.0f, 0.0f};
 	int32_t sum_count = 0;
 
 	/* Acc and Mag Initialize*/
@@ -47,16 +47,30 @@ void AHRS_Init(){
 	printf("\r\n");
 	gyroOffset.x = sum.x / 10.0f; 
 	gyroOffset.y = sum.y / 10.0f; 
-	gyroOffset.z = sum.z / 10.0f; 
+	gyroOffset.z = sum.z / 10.0f;
+	
+	
+	
 }
 
-vector3f AHRS_get_gyro(){
-	vector3f temp;
+Vector3f AHRS_get_gyro(){
+	Vector3f temp;
 	
 	temp = px4f_get_gyro();
 	temp.x = temp.x - gyroOffset.x;
 	temp.y = temp.y - gyroOffset.y;
 	temp.z = temp.z - gyroOffset.z;
 	
+	return temp;
+}
+
+Vector3f AHRS_get_acc(){
+	Vector3f temp;
+	
+	temp = readAcc();
+	temp.x = temp.x * accScale;
+	temp.y = temp.y * accScale;
+	temp.z = temp.z * accScale;
+		
 	return temp;
 }

@@ -6,7 +6,7 @@ static flow_data *flow;
 
 static int scaling_factors[] = { 37548, 18774, 12516, 9387, 7510, 3755, 1877, 939};
 
-static vector3f get_gyro_info(void);
+static Vector3f get_gyro_info(void);
 
 void px4f_init(flow_data *f){
 	//PX4 Flow
@@ -75,14 +75,14 @@ void calc_flow(){
 	flow->ground_distance = (int16_t)r.i;
 }
 
-vector3f px4f_get_gyro(){	
+Vector3f px4f_get_gyro(){	
 	px4f_update();
 	
 	return get_gyro_info();
 }
 
-static vector3f get_gyro_info(){
-	vector3f g;
+static Vector3f get_gyro_info(){
+	Vector3f g;
 	int g_scale;
 	
 	generic_16bit r;

@@ -3,6 +3,7 @@
 
 #include "hw_config.h"
 #include "param.h"
+#include "myMath.h"
 
 // register addresses
 
@@ -55,18 +56,18 @@ uint8_t readAccReg(uint8_t reg);
 void writeMagReg(uint8_t reg, uint8_t value);
 uint8_t readMagReg(uint8_t reg);
 	
-vector3f readAcc(void);
-vector3f readMag(void);
+Vector3f readAcc(void);
+Vector3f readMag(void);
 void read(void);
 
 //int heading(void);
-int heading(vector3f from);
+int heading(Vector3f from);
 	
 // vector functions
 
-void vector_cross(const vector3f *a, const vector3f *b, vector3f *out);
-float vector_dot(const vector3f *a,const vector3f *b);
-void vector_normalize(vector3f *a);
+void vector_cross(const Vector3f *a, const Vector3f *b, Vector3f *out);
+float vector_dot(const Vector3f *a, const Vector3f *b);
+void vector_normalize(Vector3f *a);
 
 
 #endif
