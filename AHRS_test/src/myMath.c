@@ -62,27 +62,4 @@ void Matrix_Vector_Multiply(const Matrix3f *m, const Vector3f *v, Vector3f *out)
 	out->z = m->c.x * v->x + m->c.y * v->y + m->c.z * v->z;
 }
 
-// Init rotation matrix using euler angles
-void init_rotation_matrix(Matrix3f *m, float yaw, float pitch, float roll)
-{
-  float c1 = cos(roll);
-  float s1 = sin(roll);
-  float c2 = cos(pitch);
-  float s2 = sin(pitch);
-  float c3 = cos(yaw);
-  float s3 = sin(yaw);
 
-  // Euler angles, right-handed, intrinsic, XYZ convention
-  // (which means: rotate around body axes Z, Y', X'') 
-  m->a.x = c2 * c3;
-  m->a.y = c3 * s1 * s2 - c1 * s3;
-  m->a.z = s1 * s3 + c1 * c3 * s2;
-
-  m->b.x = c2 * s3;
-  m->b.y = c1 * c3 + s1 * s2 * s3;
-  m->b.z = c1 * s2 * s3 - c3 * s1;
-
-  m->c.x = -s2;
-  m->c.y = c2 * s1;
-  m->c.z = c1 * c2;
-}

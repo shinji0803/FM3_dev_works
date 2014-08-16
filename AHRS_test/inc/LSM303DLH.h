@@ -56,15 +56,16 @@ uint8_t readAccReg(uint8_t reg);
 void writeMagReg(uint8_t reg, uint8_t value);
 uint8_t readMagReg(uint8_t reg);
 	
-Vector3f readAcc(void);
-Vector3f readMag(void);
-void read(void);
+void readAcc(Vector3f *a);
+void readMag(Vector3f *m);
+void read(Vector3f *a, Vector3f *m);
 
-//int heading(void);
-int heading(Vector3f from);
-	
+//float heading(void);
+float heading(Vector3f from);
+
+void mag_calibrate_out(Vector3f *min, Vector3f *max);
+
 // vector functions
-
 void vector_cross(const Vector3f *a, const Vector3f *b, Vector3f *out);
 float vector_dot(const Vector3f *a, const Vector3f *b);
 void vector_normalize(Vector3f *a);

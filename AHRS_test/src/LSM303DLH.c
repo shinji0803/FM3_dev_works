@@ -12,10 +12,12 @@
 #define ACC_ADDRESS (0x30 >> 1)
 #define MAG_ADDRESS (0x3C >> 1)
 
-static Vector3f a; // accelerometer readings
-static Vector3f m; // magnetometer readings
-static Vector3f m_max; // maximum magnetometer values, used for calibration
-static Vector3f m_min; // minimum magnetometer values, used for calibration
+/*
+static const Vector3f m_max = { 540.0f, 500.0f, 180.0f}; // maximum magnetometer values, used for calibration
+static const Vector3f m_min = { -520.0f, -570.0f, -770.0f}; // minimum magnetometer values, used for calibration
+*/
+static const Vector3f m_max = { 594.0f, 1376.0f, 735.0f}; 
+static const Vector3f m_min = { -784.0f, -1506.0f, -1224.0f};
 
 // Public Methods //////////////////////////////////////////////////////////////
 
@@ -33,6 +35,8 @@ void LSM303DLH_Init(void)
 	// 0x00 = 0b00000000
 	// Continuous conversion mode
 	writeMagReg(LSM303DLH_MR_REG_M, 0x00);
+	// Data output rate = 75Hz
+	writeMagReg(LSM303DLH_CRA_REG_M, 0x18);
 }
 
 // Writes an accelerometer register
@@ -90,7 +94,7 @@ uint8_t readMagReg(uint8_t reg)
 }
 
 // Reads the 3 accelerometer channels and stores them in vector a
-Vector3f readAcc(void)
+void readAcc(Vector3f *a)
 {
 	int32_t size;
 	uint8_t data[8];
@@ -112,15 +116,13 @@ Vector3f readAcc(void)
 	uint8_t zha = data[5];
 	uint8_t zla = data[4];
 	
-	a.x = (int16_t)((xha << 8) | xla);
-	a.y = (int16_t)((yha << 8) | yla);
-	a.z = (int16_t)((zha << 8) | zla);
-	
-	return a;
+	a->x = (int16_t)((xha << 8) | xla);
+	a->y = (int16_t)((yha << 8) | yla);
+	a->z = (int16_t)((zha << 8) | zla);
 }
 
 // Reads the 3 magnetometer channels and stores them in vector m
-Vector3f readMag(void)
+void readMag(Vector3f *m)
 {
 	int32_t size;
 	uint8_t data[8];
@@ -141,24 +143,22 @@ Vector3f readMag(void)
 	uint8_t zhm = data[4];
 	uint8_t zlm = data[5];
 
-	m.x = (int16_t)(xhm << 8 | xlm);
-	m.y = (int16_t)(yhm << 8 | ylm);
-	m.z = (int16_t)(zhm << 8 | zlm);
-	
-	return m;
+	m->x = (int16_t)(xhm << 8 | xlm);
+	m->y = (int16_t)(yhm << 8 | ylm);
+	m->z = (int16_t)(zhm << 8 | zlm);
 }
 
 // Reads all 6 channels of the LSM303DLH and stores them in the object variables
-void read(void)
+void read(Vector3f *a, Vector3f *m)
 {
-	readAcc();
-	readMag();
+	readAcc(a);
+	readMag(m);
 }
 
 // Returns the number of degrees from the -Y axis that it
 // is pointing.
 /*
-int heading(void)
+float heading(void)
 {
 	return heading((vector){0,-1,0});
 }
@@ -175,14 +175,16 @@ int heading(void)
 // horizontal plane. The From vector is projected into the horizontal
 // plane and the angle between the projected vector and north is
 // returned.
-int heading(Vector3f from)
+float heading(Vector3f from)
 {
+	Vector3f temp_a, temp_m;
+	read( &temp_a, &temp_m);
     // shift and scale
-    m.x = (m.x - m_min.x) / (m_max.x - m_min.x) * 2 - 1.0;
-    m.y = (m.y - m_min.y) / (m_max.y - m_min.y) * 2 - 1.0;
-    m.z = (m.z - m_min.z) / (m_max.z - m_min.z) * 2 - 1.0;
+    temp_m.x = (temp_m.x - m_min.x) / (m_max.x - m_min.x) * 2 - 1.0;
+    temp_m.y = (temp_m.y - m_min.y) / (m_max.y - m_min.y) * 2 - 1.0;
+    temp_m.z = (temp_m.z - m_min.z) / (m_max.z - m_min.z) * 2 - 1.0;
 
-    Vector3f temp_a = a;
+    //Vector3f temp_a = a;
     // normalize
     vector_normalize(&temp_a);
     //vector_normalize(&m);
@@ -190,16 +192,32 @@ int heading(Vector3f from)
     // compute E and N
     Vector3f E;
     Vector3f N;
-    vector_cross(&m, &temp_a, &E);
+    vector_cross(&temp_m, &temp_a, &E);
     vector_normalize(&E);
     vector_cross(&temp_a, &E, &N);
 	
     // compute heading
     //int heading = round(atan2(vector_dot(&E, &from), vector_dot(&N, &from)) * 180 / M_PI);
-	int heading = (int)(atan2(vector_dot(&E, &from), vector_dot(&N, &from)) * 180 / M_PI);
-    if (heading < 0) heading += 360;
+	float heading = (atan2(vector_dot(&E, &from), vector_dot(&N, &from)) * 180 / M_PI);
+    if (heading < 0) heading += 360.0;
 	return heading;
 }
+
+
+void mag_calibrate_out(Vector3f *min, Vector3f *max)
+{
+	Vector3f temp_m;
+	readMag(&temp_m);
+	
+	if(temp_m.x > max->x) max->x = temp_m.x;
+	if(temp_m.x < min->x) min->x = temp_m.x;
+	if(temp_m.y > max->y) max->y = temp_m.y;
+	if(temp_m.y < min->y) min->y = temp_m.y;
+	if(temp_m.z > max->z) max->z = temp_m.z;
+	if(temp_m.z < min->z) min->z = temp_m.z;
+	
+}
+
 
 void vector_cross( const Vector3f *a, const Vector3f *b, Vector3f *out)
 {

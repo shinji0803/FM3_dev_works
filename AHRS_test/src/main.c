@@ -12,6 +12,8 @@
 #include "PX4FLOW.h"
 #include "AHRS.h"
 
+#define VectorPrintf(v) printf("%+6.4f, %+6.4f, %+6.4f", v.x, v.y, v.z)
+
 static void InitLED(void);
 void loop_1hz(void);
 void loop_20hz(void);
@@ -28,6 +30,9 @@ int32_t main(void){
 	
 	flow_data fData;
 	Vector3f gyro, acc;
+	Vector3f temp1, temp2;
+	Vector3f xAxis = {-1.0f, 0.0f, 0.0f};
+	Vector3f att = { 0.0f, 0.0f, 0.0f};
 	
 	//èâä˙âªäJén
 	conio_init(57600UL);
@@ -49,17 +54,21 @@ int32_t main(void){
 		
 	while(1){
 		start = get_micros();
-		gyro = AHRS_get_gyro();
-		acc = AHRS_get_acc();
+		//AHRS_get_gyro(&gyro);
+		//AHRS_get_acc(&acc);
+		readAcc(&acc);
 		end = get_micros();
 		
 		if(p_flg == 1){
+			att.y = -atan2(acc.x, sqrt(acc.y * acc.y + acc.z * acc.z));
+			Vector_Cross_Product(&temp1, &acc, &xAxis);
+			Vector_Cross_Product(&temp2, &xAxis, &temp1);
+			att.x = atan2( temp2.y, temp2.z);
+			
+			VectorPrintf(att);
+			printf("\r\n");
 			p_flg = 0;
-			printf("%4ld ", (end - start));
-			printf("%+6.4f, %+6.4f, %+6.4f ", gyro.x, gyro.y, gyro.z);
-			printf("%+6.4f, %+6.4f, %+6.4f \r\n", acc.x, acc.y, acc.z);
-			//for(int i = 0; i < 22; i ++) printf("%x ", rawData[i]);
-			//printf("\r\n");
+			
 		}
 	} 
 }

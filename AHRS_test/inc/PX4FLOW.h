@@ -21,6 +21,6 @@ void px4f_get_raw(uint8_t raw[]);
 
 void calc_flow(void);
 
-Vector3f px4f_get_gyro(void);
+void px4f_get_gyro(Vector3f *g);
 
 #endif
