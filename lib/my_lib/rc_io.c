@@ -182,7 +182,7 @@ uint16_t rc_read(uint8_t ch){
 }
 
 uint16_t rcout_read(uint8_t ch){
-	return (uint16_t)((pwm_period - rc_out[ch]) / (INTERRUPT_FREQ / 1000000.f));
+	return (uint16_t)((pwm_period - rc_out[ch]) * USEC_PER_TICK);
 }
 
 void rc_multiread(uint16_t *data){
