@@ -179,7 +179,7 @@ CFILES = \
  $(SOURCE)/$(TARGET).c			\
  $(SOURCE)/syscalls.c			\
  $(SOURCE)/uart_support.c		\
-  $(SOURCE)/myMath.c		\
+ $(SOURCE)/myMath.c				\
  $(SOURCE)/AHRS.c				\
  $(SOURCE)/PX4FLOW.c			\
  $(SOURCE)/LSM303DLH.c
@@ -192,6 +192,10 @@ include $(MFS_LIB)/mfs_cfg.mk
 #/*----- My library PATH -----*/	
 MYLIB = ../lib/my_lib
 include $(MYLIB)/mylib_cfg.mk
+
+#/*----- Mavlink lib PATH -----*/
+MAVLINK = ../lib/Mavlink
+include $(MAVLINK)/mavlink_cfg.mk
 
 #/*----- STARTUP code PATH -----*/
 STARTUP_DIR = $(CMSIS_DEVICE)/Source/Templates/startup/gcc

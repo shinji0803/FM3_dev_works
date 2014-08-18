@@ -187,7 +187,7 @@ uint16_t rcout_read(uint8_t ch){
 
 void rc_multiread(uint16_t *data){
 	uint8_t i = 0;
-	for(i = 0; i < 8; i++) data[i] = rc_read(i + 1);
+	for(i = 0; i < 8; i++) data[i] = rc_read(i);
 }
 
 void BT0_7_IRQHandler(void){

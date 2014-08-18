@@ -12,6 +12,8 @@
 #include "PX4FLOW.h"
 #include "AHRS.h"
 
+#include "mavlink.h"
+
 #define VectorPrintf(v) printf("%+6.4f, %+6.4f, %+6.4f", v.x, v.y, v.z)
 
 static void InitLED(void);
@@ -21,21 +23,28 @@ void loop_50hz(void);
 void loop_100hz(void);
 void loop_200hz(void);
 
-volatile uint8_t p_flg = 0;
 
 /* Mavlink Output Setting */
 #include "UartDev.h"
-#include "checksum.h"
 UartDev_IOB *mavlink;
 uint8_t packetCount = 0;
 
+typedef struct timeFlg{
+	unsigned int flg_1hz   :	1;
+	unsigned int flg_10hz  :	1;
+	unsigned int flg_20hz  :	1;
+	unsigned int flg_50hz  :	1;
+	unsigned int flg_100hz :	1;
+	unsigned int flg_200hz :	1;
+	unsigned int reserve1  :	1;
+	unsigned int reserve2  :	1;
+} timeFlg;
 
+volatile timeFlg time = { 0, 0, 0, 0, 0, 0, 0, 0};
 
 int32_t main(void){
 	
 	int32_t size = 0;
-	uint8_t data[64];
-	uint32_t start, end;
 
 	//‰Šú‰»ŠJŽn
 	conio_init(57600UL);
@@ -62,50 +71,43 @@ int32_t main(void){
 	mavlink->Init();
 	
 	uint16_t input[8];
-	uint32_t time_boot_ms;
+	
+	int system_type = MAV_TYPE_QUADROTOR;
+	int autopilot_type = MAV_AUTOPILOT_GENERIC;
+	mavlink_message_t msg;
+	uint8_t data[MAVLINK_MAX_PACKET_LEN];
+	uint8_t receive[64];
 	/* Setting End */
-		
+	
 	while(1){
-		//start = get_micros();
-		//end = get_micros();
-		rc_multiread(input);
 		
-		if(p_flg == 1){
-			p_flg = 0;
-			memset(data, '\0', sizeof(data));
+		if(mavlink->RxAvailable() > 0){
+			size = 1;
+			mavlink->BufRx(receive, &size, UartDev_FLAG_NONBLOCKING);
 			
-			// Mavlink Heartbeat Message
-			data[0] = 0xFE; //Start sign = 0xFE
-			data[1] = 22; //Payload length 
-			data[2] = packetCount; //Packet Sequence
-			data[3] = 0x01; //System ID
-			data[4] = 0x01; //Component ID
-			data[5] = 35; //Message ID
-			
-			time_boot_ms = get_millis();
-			for(int i = 0; i < 4; i++){
-				data[6 + i] = (time_boot_ms >> (i*8)) & 0xFF;
+			if(size == 1){
+				if(receive[0] == MAVLINK_STX) printf("\r\n");
+				printf("%2x ", receive[0]);
 			}
+		}
+	
+		if(time.flg_1hz == 1){
+			time.flg_1hz = 0;
+			mavlink_msg_heartbeat_pack(100, 200, &msg, system_type, autopilot_type, 0, 0, 0);
 			
-			for(int i = 0; i < 8; i++){
-				data[10 + (2*i)] = input[i] & 0xFF;
-				data[10 + (2*i+1)] = (input[i] >> 8) & 0xFF;
-			}
-			data[26] = 0;
-			data[27] = 0;
-			
-			uint16_t checksum = crc_calculate((const uint8_t*)&data[1], 5);
-			//crc_accumulate_buffer(&checksum, &data[6], 22);
-			//crc_accumulate(crc_extra, &checksum);
-			
-			data[28] = checksum & 0xFF;
-			data[29] = checksum >> 8;
-			packetCount ++;
-			
-			
-			size = strlen(data);
+			size = mavlink_msg_to_send_buffer(data, &msg);
+			//printf("%ld\r\n", size);
 			mavlink->BufTx(data, &size, UartDev_FLAG_BLOCKING);
+		}
+		
+		if(time.flg_20hz == 1){
+			time.flg_20hz = 0;
+			rc_multiread(input);
+			mavlink_msg_rc_channels_raw_pack(100, 200, &msg, get_millis(), 0 , input[0], input[1], input[2],
+												input[3], input[4], input[5], input[6], input[7],  0);
 			
+			size =  mavlink_msg_to_send_buffer(data, &msg);
+			mavlink->BufTx(data, &size, UartDev_FLAG_BLOCKING);
 		}
 	} 
 }
@@ -119,22 +121,24 @@ static void InitLED(){
 }
 
 void loop_1hz(){
-	FM3_GPIO->PDORF_f.P3 = ~FM3_GPIO->PDORF_f.P3;	
+	time.flg_1hz = 1;
+	
+	FM3_GPIO->PDORF_f.P3 = ~FM3_GPIO->PDORF_f.P3;
 }
 
 void loop_20hz(){
-	p_flg = 1;
+	time.flg_20hz = 1;
 }
 
 void loop_50hz(){
-
+	time.flg_50hz = 1;
 }
 
 void loop_100hz(){
-	
+	time.flg_100hz = 1;
 }
 
 void loop_200hz(){
-	
+	time.flg_200hz = 1;
 }
 
