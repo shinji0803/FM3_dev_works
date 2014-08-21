@@ -23,4 +23,6 @@ void calc_flow(void);
 
 void px4f_get_gyro(Vector3f *g);
 
+void px4f_get_gyro_raw(Vector3d *g);
+
 #endif

@@ -82,6 +82,24 @@ void px4f_get_gyro(Vector3f *g){
 	return;
 }
 
+void px4f_get_gyro_raw(Vector3d *g){
+	generic_16bit r;
+	
+	px4f_update();
+		
+	r.b[0] = data[12];
+	r.b[1] = data[13];
+	g->x = (int16_t)r.i;
+	r.b[0] = data[14];
+	r.b[1] = data[15];
+	g->y = (int16_t)r.i;
+	r.b[0] = data[16];
+	r.b[1] = data[17];
+	g->z = (int16_t)r.i;
+	
+	return;
+}
+
 static void get_gyro_info(Vector3f *g){
 	int g_scale;
 	generic_16bit r;

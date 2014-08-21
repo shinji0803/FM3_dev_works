@@ -25,6 +25,10 @@ typedef struct Vector3f{
 	float x, y, z;
 } Vector3f;
 
+typedef struct Vector3d{
+	uint16_t x, y, z;
+} Vector3d;
+
 typedef struct Matrix3f{
 	Vector3f a;
 	Vector3f b;

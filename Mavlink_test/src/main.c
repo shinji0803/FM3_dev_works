@@ -13,36 +13,21 @@
 #include "AHRS.h"
 
 #include "mavlink.h"
+#include "mavlink_support.h"
 
 #define VectorPrintf(v) printf("%+6.4f, %+6.4f, %+6.4f", v.x, v.y, v.z)
 
 static void InitLED(void);
-void loop_1hz(void);
-void loop_20hz(void);
-void loop_50hz(void);
-void loop_100hz(void);
-void loop_200hz(void);
+inline void loop_1hz(void);
+inline void loop_20hz(void);
+inline void loop_50hz(void);
+inline void loop_100hz(void);
+inline void loop_200hz(void);
+extern volatile timeFlg time;
 
-
-/* Mavlink Output Setting */
-#include "UartDev.h"
-UartDev_IOB *mavlink;
-uint8_t packetCount = 0;
-
-typedef struct timeFlg{
-	unsigned int flg_1hz   :	1;
-	unsigned int flg_10hz  :	1;
-	unsigned int flg_20hz  :	1;
-	unsigned int flg_50hz  :	1;
-	unsigned int flg_100hz :	1;
-	unsigned int flg_200hz :	1;
-	unsigned int reserve1  :	1;
-	unsigned int reserve2  :	1;
-} timeFlg;
-
-volatile timeFlg time = { 0, 0, 0, 0, 0, 0, 0, 0};
 
 int32_t main(void){
+	flow_data f;
 	
 	int32_t size = 0;
 
@@ -61,53 +46,53 @@ int32_t main(void){
 	wait(100);
 	//‰Šú‰»I—¹
 	
-	/* Mavlink Output Port Setting */
-	FM3_GPIO->PFR7 = FM3_GPIO->PFR7 | 0x0C;
-	FM3_GPIO->EPFR07 = FM3_GPIO->EPFR07 | 0x40000;
-	mavlink = &UartDev[2];
-	mavlink->Cfg.BufSize = 256;
-	mavlink->Cfg.BaudRate = 57600;
-	mavlink->Cfg.BitOrder = UartDev_BITORDER_LSB;
-	mavlink->Init();
+	px4f_init(&f);
+	AHRS_Init();
+	
+	Mavlink_port_init(2, 57600UL);
 	
 	uint16_t input[8];
-	
 	int system_type = MAV_TYPE_QUADROTOR;
 	int autopilot_type = MAV_AUTOPILOT_GENERIC;
 	mavlink_message_t msg;
 	uint8_t data[MAVLINK_MAX_PACKET_LEN];
-	uint8_t receive[64];
-	/* Setting End */
+	
+	Vector3d gyro;
+	Vector3f acc, mag;
 	
 	while(1){
 		
-		if(mavlink->RxAvailable() > 0){
-			size = 1;
-			mavlink->BufRx(receive, &size, UartDev_FLAG_NONBLOCKING);
-			
-			if(size == 1){
-				if(receive[0] == MAVLINK_STX) printf("\r\n");
-				printf("%2x ", receive[0]);
-			}
-		}
-	
+		mavlink_rx_check();
+		
 		if(time.flg_1hz == 1){
 			time.flg_1hz = 0;
 			mavlink_msg_heartbeat_pack(100, 200, &msg, system_type, autopilot_type, 0, 0, 0);
 			
 			size = mavlink_msg_to_send_buffer(data, &msg);
-			//printf("%ld\r\n", size);
-			mavlink->BufTx(data, &size, UartDev_FLAG_BLOCKING);
+			mavlink_tx(data, &size);
 		}
 		
 		if(time.flg_20hz == 1){
 			time.flg_20hz = 0;
 			rc_multiread(input);
 			mavlink_msg_rc_channels_raw_pack(100, 200, &msg, get_millis(), 0 , input[0], input[1], input[2],
-												input[3], input[4], input[5], input[6], input[7],  0);
+												input[3], input[4], input[5], input[6], input[7],  255);
 			
 			size =  mavlink_msg_to_send_buffer(data, &msg);
-			mavlink->BufTx(data, &size, UartDev_FLAG_BLOCKING);
+			mavlink_tx(data, &size);
+		}
+		
+		if(time.flg_50hz == 1){
+			time.flg_50hz = 0;
+			px4f_get_gyro_raw(&gyro);
+			readAcc(&acc);
+			readMag(&mag);
+			
+			mavlink_msg_raw_imu_pack(100, 200, &msg, get_micros(), (int16_t)acc.x, (int16_t)acc.y, (int16_t)acc.z,
+									gyro.x, gyro.y, gyro.z, (int16_t)mag.x, (int16_t)mag.y, (int16_t)mag.z);
+			
+			size = mavlink_msg_to_send_buffer(data, &msg);
+			mavlink_tx(data, &size);
 		}
 	} 
 }
@@ -120,25 +105,23 @@ static void InitLED(){
 	FM3_GPIO->PDORF_f.P3	= 0;
 }
 
-void loop_1hz(){
-	time.flg_1hz = 1;
-	
+inline void loop_1hz(){
 	FM3_GPIO->PDORF_f.P3 = ~FM3_GPIO->PDORF_f.P3;
 }
 
-void loop_20hz(){
-	time.flg_20hz = 1;
+inline void loop_20hz(){
+
 }
 
-void loop_50hz(){
-	time.flg_50hz = 1;
+inline void loop_50hz(){
+
 }
 
-void loop_100hz(){
-	time.flg_100hz = 1;
+inline void loop_100hz(){
+
 }
 
-void loop_200hz(){
-	time.flg_200hz = 1;
+inline void loop_200hz(){
+
 }
 

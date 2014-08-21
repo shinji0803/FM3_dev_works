@@ -182,7 +182,8 @@ CFILES = \
  $(SOURCE)/myMath.c				\
  $(SOURCE)/AHRS.c				\
  $(SOURCE)/PX4FLOW.c			\
- $(SOURCE)/LSM303DLH.c
+ $(SOURCE)/LSM303DLH.c			\
+ $(SOURCE)/mavlink_support.c
 
 
 #/*----- MultiFunctionSerial(MFS) library PATH -----*/	
