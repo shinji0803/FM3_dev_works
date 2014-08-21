@@ -26,5 +26,19 @@ extern void loop_50hz(void);
 extern void loop_100hz(void);
 extern void loop_200hz(void);
 
+//各周期用のフラグ
+typedef struct timeFlg{
+	unsigned int flg_1hz   :	1;
+	unsigned int flg_10hz  :	1;
+	unsigned int flg_20hz  :	1;
+	unsigned int flg_50hz  :	1;
+	unsigned int flg_100hz :	1;
+	unsigned int flg_200hz :	1;
+	unsigned int reserve1  :	1;
+	unsigned int reserve2  :	1;
+} timeFlg;
+
+extern volatile timeFlg time;
+
 #endif
 

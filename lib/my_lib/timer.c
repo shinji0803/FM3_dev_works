@@ -6,6 +6,8 @@ static volatile uint32_t usec_delay_counter = 0;
 
 static inline void TimingDelay_Decrement(void);
 
+volatile timeFlg time = { 0, 0, 0, 0, 0, 0, 0, 0};
+
 void Init_timer(){
 	
 	uint32_t period;
@@ -43,26 +45,31 @@ void DT_Handler(void){	//DT割込みハンドラ: 0.001sec毎
 	FM3_DTIM->TIMER1INTCLR = 0x01; //なんでもいいから書き込むと割込みクリア？
 	
 	if(counter_1hz >= 1000){	//1Hz : LED点滅周期
+		time.flg_1hz = 1;
 		loop_1hz();
 		counter_1hz  = 0;
 	}
 	
 	if(counter_20hz >= 50){	//20Hz : 表示周期
+		time.flg_20hz = 1;
 		loop_20hz();
 		counter_20hz = 0;
 	}
 	
 	if(counter_50hz >= 20){	//50Hz
+		time.flg_50hz = 1;
 		loop_50hz();
 		counter_50hz = 0;
 	}
 	
 	if(counter_100hz >= 10){	//100Hz
+		time.flg_100hz = 1;
 		loop_100hz();
 		counter_100hz = 0;
 	}
 	
 	if(counter_200hz >= 5){	//200Hz : Flowデータ受信周期
+		time.flg_200hz = 1;
 		loop_200hz();
 		counter_200hz = 0;
 	}
