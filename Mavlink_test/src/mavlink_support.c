@@ -34,6 +34,22 @@ void mavlink_rx_check(void)
 {
 	int32_t size;
 	uint8_t receive_buf[8];
+	
+	if(mavlink->RxAvailable() > 0){
+		size = 1;
+		mavlink->BufRx(receive_buf, &size, UartDev_FLAG_NONBLOCKING);
+		
+		if(size == 1){
+			if(receive_buf[0] == MAVLINK_STX) printf("\r\n");
+			printf("%2x ", receive_buf[0]);
+		}
+	}
+}
+
+void mavlink_rx_check_test(void)
+{
+	int32_t size;
+	uint8_t receive_buf[8];
 	static uint16_t index = 0;
 	
 	if(mavlink->RxAvailable() > 0){

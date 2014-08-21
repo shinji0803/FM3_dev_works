@@ -12,4 +12,6 @@ int32_t mavlink_tx(void *data, int32_t *size);
 
 void mavlink_rx_check(void);
 
+void mavlink_rx_check_test(void);
+
 #endif

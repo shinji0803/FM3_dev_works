@@ -80,6 +80,12 @@ int32_t main(void){
 			
 			size =  mavlink_msg_to_send_buffer(data, &msg);
 			mavlink_tx(data, &size);
+			
+			mavlink_msg_global_position_int_pack(100, 200, &msg, get_millis(), 340780080, 1345612070, 0, 0, 
+												0, 0, 0, (uint16_t)(heading((Vector3f){0,-1,0}) * 100));
+			size =  mavlink_msg_to_send_buffer(data, &msg);
+			mavlink_tx(data, &size);
+			
 		}
 		
 		if(time.flg_50hz == 1){

@@ -16,8 +16,12 @@
 static const Vector3f m_max = { 540.0f, 500.0f, 180.0f}; // maximum magnetometer values, used for calibration
 static const Vector3f m_min = { -520.0f, -570.0f, -770.0f}; // minimum magnetometer values, used for calibration
 */
+/*
 static const Vector3f m_max = { 594.0f, 1376.0f, 735.0f}; 
 static const Vector3f m_min = { -784.0f, -1506.0f, -1224.0f};
+*/
+static const Vector3f m_max = { 400.0f, 400.0f, 400.0f}; 
+static const Vector3f m_min = { -400.0f, -400.0f, -400.0f};
 
 // Public Methods //////////////////////////////////////////////////////////////
 

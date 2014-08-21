@@ -21,4 +21,6 @@ void AHRS_Init(void);
 void AHRS_get_gyro(Vector3f *g);
 void AHRS_get_acc(Vector3f *a);
 
+void AHRS_get_euler(Vector3f *att);
+
 #endif

@@ -111,3 +111,12 @@ void init_rotation_matrix(Matrix3f *m, float yaw, float pitch, float roll)
   m->c.y = c2 * s1;
   m->c.z = c1 * c2;
 }
+
+void AHRS_get_euler(Vector3f *att)
+{
+	att->x = -asin(dcm_matrix.c.x);
+	att->y = atan2(dcm_matrix.c.y, dcm_matrix.c.z);
+	att->z = atan2(dcm_matrix.b.x, dcm_matrix.a.x);
+}
+	
+	
