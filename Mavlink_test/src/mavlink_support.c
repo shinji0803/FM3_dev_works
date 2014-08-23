@@ -3,7 +3,6 @@
 
 static UartDev_IOB *mavlink;
 
-
 static uint8_t mav_msg[MAVLINK_MAX_PACKET_LEN];
 
 int32_t Mavlink_port_init(uint8_t ch, uint32_t baudrate)

@@ -25,5 +25,5 @@ static void init_i2c_port(){
 	FM3_GPIO->EPFR07 = FM3_GPIO->EPFR07 | 0x05000000;
 	
 	//プルアップ抵抗設定
-	FM3_GPIO->PCR7 = FM3_GPIO->PCR7 | 0xC0;
+	//FM3_GPIO->PCR7 = FM3_GPIO->PCR7 | 0xC0;
 }

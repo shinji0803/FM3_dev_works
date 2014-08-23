@@ -11,7 +11,7 @@ static void get_gyro_info(Vector3f *g);
 void px4f_init(flow_data *f){
 	//PX4 Flow
 	i2c->Cfg.SlaveAddr = PX4F_ADD; 
-	i2c->Cfg.BaudRate = PX4F_BAUD;
+	//i2c->Cfg.BaudRate = PX4F_BAUD;
 	
 	flow = f;
 	flow->x = 0.0f;
