@@ -9,6 +9,8 @@
 #include "MfsDev_FM3.h"
 #include "clock_def.h"
 
+#include "timer.h"
+
 /*
  *  Channel Common Function 
  */
@@ -402,7 +404,7 @@ static int32_t  I2cDev_DataTx(uint32_t Ch, void *pData, int32_t *pSize)
 {
     I2c_INFO *p_info;
     int32_t ret;
-    
+	
     /* check NULL pointer */
     if ((pData == NULL) || (pSize == NULL)) {
         return ERROR; /* deviation from MISRA-C:2004 Rule 14.7 */

@@ -30,6 +30,7 @@
 #define I2C_ADDRMODE     I2cDev_ADDRMODE_7    /* Default Address Mode  */
 #define I2C_MODE         I2cDev_MODE_MASTER   /* Default Mode          */
 
+#define I2C_TIMEOUT		 1000
 
 /*
  *  Register Bit Definition
