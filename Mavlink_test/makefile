@@ -180,9 +180,6 @@ CFILES = \
  $(SOURCE)/syscalls.c			\
  $(SOURCE)/uart_support.c		\
  $(SOURCE)/myMath.c				\
- $(SOURCE)/AHRS.c				\
- $(SOURCE)/PX4FLOW.c			\
- $(SOURCE)/LSM303DLH.c			\
  $(SOURCE)/mavlink_support.c
 
 

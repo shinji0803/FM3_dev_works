@@ -9,7 +9,6 @@
 #include "fram.h"
 
 #include "myMath.h"
-#include "PX4FLOW.h"
 #include "AHRS.h"
 
 #include "mavlink.h"
@@ -27,9 +26,9 @@ extern volatile timeFlg time;
 
 
 int32_t main(void){
-	flow_data f;
 	
 	int32_t size = 0;
+	uint32_t start, end;
 
 	//èâä˙âªäJén
 	conio_init(57600UL);
@@ -39,14 +38,13 @@ int32_t main(void){
 	rcin_enable(0);
 	
 	Init_i2c();
-	//Init_fram();
+	Init_fram();
 	Init_DT();
 	
 	printf("Initialize OK.\r\n");
 	wait(100);
 	//èâä˙âªèIóπ
 	
-	px4f_init(&f);
 	AHRS_Init();
 	
 	Mavlink_port_init(2, 57600UL);
@@ -57,7 +55,7 @@ int32_t main(void){
 	mavlink_message_t msg;
 	uint8_t data[MAVLINK_MAX_PACKET_LEN];
 	
-	Vector3d gyro;
+	Vector3f gyro;
 	Vector3f acc, mag;
 	
 	while(1){
@@ -82,7 +80,7 @@ int32_t main(void){
 			mavlink_tx(data, &size);
 			
 			mavlink_msg_global_position_int_pack(100, 200, &msg, get_millis(), 340780080, 1345612070, 0, 0, 
-												0, 0, 0, (uint16_t)(heading((Vector3f){0,-1,0}) * 100));
+												0, 0, 0, (uint16_t)(heading((Vector3f){0,1,0}) * 100));
 			size =  mavlink_msg_to_send_buffer(data, &msg);
 			mavlink_tx(data, &size);
 			
@@ -90,13 +88,19 @@ int32_t main(void){
 		
 		if(time.flg_50hz == 1){
 			time.flg_50hz = 0;
-			px4f_get_gyro_raw(&gyro);
+			start = get_micros();
+			AHRS_get_gyro(&gyro);
 			readAcc(&acc);
 			readMag(&mag);
+			end = get_micros();
 			
 			mavlink_msg_raw_imu_pack(100, 200, &msg, get_micros(), (int16_t)acc.x, (int16_t)acc.y, (int16_t)acc.z,
 									gyro.x, gyro.y, gyro.z, (int16_t)mag.x, (int16_t)mag.y, (int16_t)mag.z);
 			
+			size = mavlink_msg_to_send_buffer(data, &msg);
+			mavlink_tx(data, &size);
+			
+			mavlink_msg_debug_pack(100, 200, &msg, get_millis(), 0, (float)(end-start));
 			size = mavlink_msg_to_send_buffer(data, &msg);
 			mavlink_tx(data, &size);
 		}
