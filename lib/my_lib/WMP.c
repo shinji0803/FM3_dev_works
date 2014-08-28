@@ -37,6 +37,7 @@ void WMP_get_raw_gyro(Vector3f *g)
 	g->x = (int16_t)((wmp_data[4] >> 2) << 8) + wmp_data[1];
 	g->y = (int16_t)((wmp_data[5] >> 2) << 8) + wmp_data[2];
 	g->z = (int16_t)((wmp_data[3] >> 2) << 8) + wmp_data[0];
+
 }
 
 void WMP_get_gyro_mode(uint8_t *mode)

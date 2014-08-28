@@ -24,12 +24,12 @@ int32_t Mavlink_port_init(uint8_t ch, uint32_t baudrate)
 	return result;
 }
 
-int32_t mavlink_tx(void *data, int32_t *size)
+int32_t Mavlink_tx(void *data, int32_t *size)
 {
 	return mavlink->BufTx(data, size, UartDev_FLAG_BLOCKING);
 }
 
-void mavlink_rx_check(void)
+void Mavlink_rx_check(void)
 {
 	int32_t size;
 	uint8_t receive_buf[8];
@@ -45,7 +45,7 @@ void mavlink_rx_check(void)
 	}
 }
 
-void mavlink_rx_check_test(void)
+void Mavlink_rx_check_test(void)
 {
 	int32_t size;
 	uint8_t receive_buf[8];
@@ -68,4 +68,18 @@ void mavlink_rx_check_test(void)
 			index ++;
 		}
 	}
+}
+
+void Mavlink_printf(const char* format, ...)
+{
+	va_list args;
+	uint8_t convert[256];
+	int32_t size = 0;
+		
+	va_start( args, format);
+	vsprintf((char *)convert, format, args);
+	va_end(args);
+	
+	size = strlen((char *)convert);
+	mavlink->BufTx(convert, &size, UartDev_FLAG_BLOCKING);
 }
