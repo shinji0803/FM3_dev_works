@@ -104,26 +104,35 @@ static uint8_t check_gyro_calib_data(Vector3f *g)
 	return error_count;
 }
 
+#define GYRO_SCALE 13.768f
 void AHRS_get_gyro(Vector3f *g)
 {
-#ifdef USE_PX4F_GYRO	
-	px4f_get_gyro(g);
-#else
-	WMP_get_raw_gyro(g);
-#endif
-
-	g->x = g->x - gyroOffset.x;
-	g->y = g->y - gyroOffset.y;
-	g->z = g->z - gyroOffset.z;
+	AHRS_get_raw_gyro(g);
+	
+	g->x = ToRad(g->x / GYRO_SCALE);
+	g->y = ToRad(g->y / GYRO_SCALE);
+	g->z = ToRad(g->z / GYRO_SCALE);
 }
 
 void AHRS_get_raw_gyro(Vector3f *g)
 {
+	uint8_t slow_mode;
+	
 #ifdef USE_PX4F_GYRO	
 	px4f_get_gyro(g);
 #else
 	WMP_get_raw_gyro(g);
+	WMP_get_gyro_mode(&slow_mode);
 #endif
+	
+	g->x = g->x - gyroOffset.x;
+	g->y = -(g->y - gyroOffset.y); // Pitch reversed
+	g->z = g->z - gyroOffset.z;
+	
+	if(((slow_mode >> 2) & 0x01) != 1) g->x *= 4.545454f; // When high speed mode, multiply value by (2000/440)
+	if(((slow_mode >> 1) & 0x01) != 1) g->y *= 4.545454f;
+	if(((slow_mode >> 0) & 0x01) != 1) g->z *= 4.545454f; 
+	
 }
 
 void AHRS_get_acc(Vector3f *a)

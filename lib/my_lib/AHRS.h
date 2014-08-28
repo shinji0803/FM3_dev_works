@@ -17,6 +17,12 @@
 
 #define GRAVITY 9.767f
 
+#define DEG_TO_RAD 0.017453292519943295769236907684886f
+#define RAD_TO_DEG 57.295779513082320876798154814105f
+
+#define ToRad(x) (x * DEG_TO_RAD)
+#define ToDeg(x) (x * RAD_TO_DEG)
+
 void AHRS_Init(void);
 
 void AHRS_get_gyro(Vector3f *g);
