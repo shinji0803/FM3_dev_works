@@ -24,11 +24,12 @@ inline void loop_100hz(void);
 inline void loop_200hz(void);
 extern volatile timeFlg time;
 
+extern mavlink_message_t msg;
 
 int32_t main(void){
 	
 	int32_t size = 0;
-	uint32_t start, end;
+	uint32_t start, end, rev_update;
 
 	//‰Šú‰»ŠJŽn
 	conio_init(57600UL);
@@ -50,13 +51,11 @@ int32_t main(void){
 	Mavlink_port_init(2, 57600UL);
 	
 	uint16_t input[8];
-	int system_type = MAV_TYPE_QUADROTOR;
-	int autopilot_type = MAV_AUTOPILOT_GENERIC;
-	mavlink_message_t msg;
 	uint8_t data[MAVLINK_MAX_PACKET_LEN];
 	
 	Vector3f gyro;
 	Vector3f acc, mag;
+	Vector3f attitude;
 	
 	while(1){
 		
@@ -64,52 +63,59 @@ int32_t main(void){
 		
 		if(time.flg_1hz == 1){
 			time.flg_1hz = 0;
-			mavlink_msg_heartbeat_pack(100, 200, &msg, system_type, autopilot_type, 0, 0, 0);
-			
-			size = mavlink_msg_to_send_buffer(data, &msg);
-			Mavlink_tx(data, &size);
+			Mavlink_heartbeat_send();
 		}
 		
 		if(time.flg_20hz == 1){
 			time.flg_20hz = 0;
 			rc_multiread(input);
-			mavlink_msg_rc_channels_raw_pack(100, 200, &msg, get_millis(), 0 , input[0], input[1], input[2],
-												input[3], input[4], input[5], input[6], input[7],  255);
+			//Mavlink_rcin_raw_send(input);
 			
-			size =  mavlink_msg_to_send_buffer(data, &msg);
-			Mavlink_tx(data, &size);
-			
+			/*
 			mavlink_msg_global_position_int_pack(100, 200, &msg, get_millis(), 340780080, 1345612070, 0, 0, 
-												0, 0, 0, (uint16_t)(heading((Vector3f){0,1,0}) * 100));
+												0, 0, 0, (uint16_t)(AHRS_heading((Vector3f){0,1,0}) * 100));
 			size =  mavlink_msg_to_send_buffer(data, &msg);
 			Mavlink_tx(data, &size);
+			*/
 			
+			Mavlink_debug_send(0, (float)(end-start));
+			
+			AHRS_get_raw_gyro(&gyro);
+			AHRS_get_raw_acc(&acc);
+			AHRS_get_raw_mag(&mag);
+			Mavlink_imu_raw_send( &acc, &gyro, &mag);
+			
+			uint8_t name[] = "Att";
+			Vector3f att, temp1, temp2;
+			Vector3f xAxis = {1.0f, 0.0f, 0.0f};
+			att.y = atan2(acc.x, sqrt(acc.y * acc.y + acc.z * acc.z));
+			Vector_Cross_Product(&temp1, &acc, &xAxis);
+			Vector_Cross_Product(&temp2, &xAxis, &temp1);
+			att.x = atan2( temp2.y, temp2.z);
+			Mavlink_debug_vect_send( name, &att);
 		}
 		
 		if(time.flg_50hz == 1){
 			time.flg_50hz = 0;
-			start = get_micros();
-			AHRS_get_raw_gyro(&gyro);
-			readAcc(&acc);
-			readMag(&mag);
-			end = get_micros();
 			
-			mavlink_msg_raw_imu_pack(100, 200, &msg, get_micros(), (int16_t)acc.x, (int16_t)acc.y, (int16_t)acc.z,
-									gyro.x, gyro.y, gyro.z, (int16_t)mag.x, (int16_t)mag.y, (int16_t)mag.z);
-			
-			size = mavlink_msg_to_send_buffer(data, &msg);
-			Mavlink_tx(data, &size);
-			/*
-			mavlink_msg_debug_pack(100, 200, &msg, get_millis(), 0, (float)(end-start));
-			size = mavlink_msg_to_send_buffer(data, &msg);
-			Mavlink_tx(data, &size);
-			*/
-			
+			AHRS_get_euler(&attitude);
 			AHRS_get_gyro(&gyro);
-			uint8_t name[] = "Gyro";
-			mavlink_msg_debug_vect_pack(100, 200, &msg, name, get_micros(), gyro.x, gyro.y, gyro.z);
-			size = mavlink_msg_to_send_buffer(data, &msg);
-			Mavlink_tx(data, &size);
+			Mavlink_att_send(&attitude, &gyro);
+		}
+		
+		if(time.flg_100hz == 1){
+			time.flg_100hz = 0;
+			start = get_micros();
+			
+			AHRS_read_imu();
+			
+			AHRS_dcm_update((float)(start - rev_update) / 1000000.f);
+			rev_update = start;
+			
+			AHRS_dcm_normalize();
+			AHRS_drift_correction();
+			
+			end = get_micros();
 		}
 	} 
 }
@@ -123,11 +129,11 @@ static void InitLED(){
 }
 
 inline void loop_1hz(){
-	FM3_GPIO->PDORF_f.P3 = ~FM3_GPIO->PDORF_f.P3;
+	if(time.calibrate != 1) FM3_GPIO->PDORF_f.P3 = ~FM3_GPIO->PDORF_f.P3;
 }
 
 inline void loop_20hz(){
-
+	if(time.calibrate != 0) FM3_GPIO->PDORF_f.P3 = ~FM3_GPIO->PDORF_f.P3;
 }
 
 inline void loop_50hz(){

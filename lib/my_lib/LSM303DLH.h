@@ -58,18 +58,9 @@ uint8_t readMagReg(uint8_t reg);
 	
 void readAcc(Vector3f *a);
 void readMag(Vector3f *m);
-void read(Vector3f *a, Vector3f *m);
-
-//float heading(void);
-float heading(Vector3f from);
+void LSM303DLH_read(Vector3f *a, Vector3f *m);
 
 void mag_calibrate_out(Vector3f *min, Vector3f *max);
-
-// vector functions
-void vector_cross(const Vector3f *a, const Vector3f *b, Vector3f *out);
-float vector_dot(const Vector3f *a, const Vector3f *b);
-void vector_normalize(Vector3f *a);
-
 
 #endif
 

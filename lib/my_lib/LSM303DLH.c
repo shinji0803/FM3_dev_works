@@ -12,17 +12,6 @@
 #define ACC_ADDRESS (0x30 >> 1)
 #define MAG_ADDRESS (0x3C >> 1)
 
-/*
-static const Vector3f m_max = { 540.0f, 500.0f, 180.0f}; // maximum magnetometer values, used for calibration
-static const Vector3f m_min = { -520.0f, -570.0f, -770.0f}; // minimum magnetometer values, used for calibration
-*/
-/*
-static const Vector3f m_max = { 594.0f, 1376.0f, 735.0f}; 
-static const Vector3f m_min = { -784.0f, -1506.0f, -1224.0f};
-*/
-static const Vector3f m_max = { 400.0f, 400.0f, 400.0f}; 
-static const Vector3f m_min = { -400.0f, -400.0f, -400.0f};
-
 // Public Methods //////////////////////////////////////////////////////////////
 
 // Turns on the LSM303DLH's accelerometer and magnetometers and places them in normal
@@ -153,58 +142,10 @@ void readMag(Vector3f *m)
 }
 
 // Reads all 6 channels of the LSM303DLH and stores them in the object variables
-void read(Vector3f *a, Vector3f *m)
+void LSM303DLH_read(Vector3f *a, Vector3f *m)
 {
 	readAcc(a);
 	readMag(m);
-}
-
-// Returns the number of degrees from the -Y axis that it
-// is pointing.
-/*
-float heading(void)
-{
-	return heading((vector){0,-1,0});
-}
-*/
-
-// Returns the number of degrees from the From vector projected into
-// the horizontal plane is away from north.
-// 
-// Description of heading algorithm: 
-// Shift and scale the magnetic reading based on calibration data to
-// to find the North vector. Use the acceleration readings to
-// determine the Down vector. The cross product of North and Down
-// vectors is East. The vectors East and North form a basis for the
-// horizontal plane. The From vector is projected into the horizontal
-// plane and the angle between the projected vector and north is
-// returned.
-float heading(Vector3f from)
-{
-	Vector3f temp_a, temp_m;
-	read( &temp_a, &temp_m);
-    // shift and scale
-    temp_m.x = (temp_m.x - m_min.x) / (m_max.x - m_min.x) * 2 - 1.0;
-    temp_m.y = (temp_m.y - m_min.y) / (m_max.y - m_min.y) * 2 - 1.0;
-    temp_m.z = (temp_m.z - m_min.z) / (m_max.z - m_min.z) * 2 - 1.0;
-
-    //Vector3f temp_a = a;
-    // normalize
-    vector_normalize(&temp_a);
-    //vector_normalize(&m);
-
-    // compute E and N
-    Vector3f E;
-    Vector3f N;
-    vector_cross(&temp_m, &temp_a, &E);
-    vector_normalize(&E);
-    vector_cross(&temp_a, &E, &N);
-	
-    // compute heading
-    //int heading = round(atan2(vector_dot(&E, &from), vector_dot(&N, &from)) * 180 / M_PI);
-	float heading = (atan2(vector_dot(&E, &from), vector_dot(&N, &from)) * 180 / M_PI);
-    if (heading < 0) heading += 360.0;
-	return heading;
 }
 
 
@@ -219,26 +160,7 @@ void mag_calibrate_out(Vector3f *min, Vector3f *max)
 	if(temp_m.y < min->y) min->y = temp_m.y;
 	if(temp_m.z > max->z) max->z = temp_m.z;
 	if(temp_m.z < min->z) min->z = temp_m.z;
-	
 }
 
 
-void vector_cross( const Vector3f *a, const Vector3f *b, Vector3f *out)
-{
-  out->x = a->y * b->z - a->z * b->y;
-  out->y = a->z * b->x - a->x * b->z;
-  out->z = a->x * b->y - a->y * b->x;
-}
 
-float vector_dot( const Vector3f *a, const Vector3f *b)
-{
-  return a->x * b->x + a->y * b->y + a->z * b->z;
-}
-
-void vector_normalize(Vector3f *a)
-{
-  float mag = sqrt(vector_dot(a,a));
-  a->x /= mag;
-  a->y /= mag;
-  a->z /= mag;
-}

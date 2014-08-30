@@ -35,10 +35,9 @@ typedef struct timeFlg{
 	unsigned int flg_100hz :	1;
 	unsigned int flg_200hz :	1;
 	unsigned int reserve1  :	1;
-	unsigned int reserve2  :	1;
+	unsigned int calibrate :	1;
 } timeFlg;
 
-extern volatile timeFlg time;
 
 #endif
 
