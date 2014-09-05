@@ -27,30 +27,42 @@ extern volatile timeFlg time;
 
 void AHRS_Init(void);
 
-void AHRS_read_imu(void);
+void AHRS_read_imu(void); // read all sensor(Gyro, Acc, Mag)
 
-void AHRS_dcm_update(float dt);
-void AHRS_dcm_normalize(void);
-void AHRS_drift_correction(void);
+// DCM algorithm
+void AHRS_dcm_update(float dt); // update DCM
+void AHRS_dcm_normalize(void); // normalize DCM
+void AHRS_drift_correction(void); // gyro drift correction
 
-void AHRS_get_gyro(Vector3f *g);
-void AHRS_get_raw_gyro(Vector3f *g);
+// Gyro function
+void AHRS_get_gyro(Vector3f *g); // get scaled gyro value
+void AHRS_get_raw_gyro(Vector3f *g); // get raw gyro value
+void AHRS_get_omega(Vector3f *g); // Drift corrected gyro value
 
-void AHRS_get_acc(Vector3f *a);
-void AHRS_get_raw_acc(Vector3f *a);
+// Acc function
+void AHRS_get_acc(Vector3f *a); // get scaled acc value
+void AHRS_get_raw_acc(Vector3f *a); // get raw acc value
 
-void AHRS_get_mag(Vector3f *m);
-void AHRS_get_raw_mag(Vector3f *m);
+// Mag function
+void AHRS_get_mag(Vector3f *m); // get scaled mag value
+void AHRS_get_raw_mag(Vector3f *m); // get raw mag value
 
-void AHRS_get_euler(Vector3f *att);
+void AHRS_get_euler(Vector3f *att); // get euler angle from DCM
 
-float AHRS_heading(Vector3f from);
+float AHRS_heading(Vector3f from); // get heading(Yaw) that corrected leaning
 
 // DCM parameters
+/*
 #define Kp_ROLLPITCH 0.02f
 #define Ki_ROLLPITCH 0.00002f
 #define Kp_YAW 1.2f
 #define Ki_YAW 0.00002f
+*/
+
+#define Kp_ROLLPITCH 1.2f
+#define Ki_ROLLPITCH 0.0001f
+#define Kp_YAW 2.0f
+#define Ki_YAW 0.001f
 
 /* Calibration Data */
 /* Mag calibration data */
@@ -58,8 +70,8 @@ static const Vector3f m_max = { 400.0f, 400.0f, 400.0f};
 static const Vector3f m_min = { -400.0f, -400.0f, -400.0f};
 
 /* Acc calibration data */
-static const Vector3f a_max = { 16500.0f, 15800.0f, 16800.0f};
-static const Vector3f a_min = { -16550.0f, -16500.0f, -16100.0f};
+static const Vector3f a_max = { 16800.0f, 15500.0f, 16000.0f};
+static const Vector3f a_min = { -16400.0f, -16800.0f, -17050.0f};
 
 /* Gyro calibration data */
 /* Gyro valid range at rest when use WiiMotionPlus */
@@ -68,7 +80,10 @@ static const Vector3f a_min = { -16550.0f, -16500.0f, -16100.0f};
 
 
 /* Sensor scale data */
-#define GYRO_SCALE 13.768f // 13.768 unit/(deg/sec) when use WiiMotionPlus
+//#define GYRO_SCALE 13.768f // 13.768 unit/(deg/sec) when use WiiMotionPlus
+// default value is 13.768, but it's too small. 
+// Reference: http://hikakeya3.blog68.fc2.com/blog-category-14.html
+#define GYRO_SCALE 19.9f
 
 #define ACCEL_X_OFFSET ((a_min.x + a_max.x) / 2.0f)
 #define ACCEL_Y_OFFSET ((a_min.y + a_max.y) / 2.0f)

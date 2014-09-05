@@ -65,9 +65,8 @@ void Matrix_Vector_Multiply(const Matrix3f *m, const Vector3f *v, Vector3f *out)
 
 void Vector_Normalize(Vector3f *a)
 {
-  float mag = sqrt(Vector_Dot_Product(a,a));
-  a->x /= mag;
-  a->y /= mag;
-  a->z /= mag;
+	float mag = sqrtf(Vector_Dot_Product(a,a));
+	a->x /= mag;
+	a->y /= mag;
+	a->z /= mag;
 }
-

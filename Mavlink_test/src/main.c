@@ -29,7 +29,7 @@ extern mavlink_message_t msg;
 int32_t main(void){
 	
 	int32_t size = 0;
-	uint32_t start, end, rev_update;
+	uint32_t start, end, now, rev_update;
 
 	//èâä˙âªäJén
 	conio_init(57600UL);
@@ -76,30 +76,18 @@ int32_t main(void){
 												0, 0, 0, (uint16_t)(AHRS_heading((Vector3f){0,1,0}) * 100));
 			size =  mavlink_msg_to_send_buffer(data, &msg);
 			Mavlink_tx(data, &size);
-			*/
-			
-			Mavlink_debug_send(0, (float)(end-start));
+			*/			
 			
 			AHRS_get_raw_gyro(&gyro);
 			AHRS_get_raw_acc(&acc);
 			AHRS_get_raw_mag(&mag);
 			Mavlink_imu_raw_send( &acc, &gyro, &mag);
-			
-			uint8_t name[] = "Att";
-			Vector3f att, temp1, temp2;
-			Vector3f xAxis = {1.0f, 0.0f, 0.0f};
-			att.y = atan2(acc.x, sqrt(acc.y * acc.y + acc.z * acc.z));
-			Vector_Cross_Product(&temp1, &acc, &xAxis);
-			Vector_Cross_Product(&temp2, &xAxis, &temp1);
-			att.x = atan2( temp2.y, temp2.z);
-			Mavlink_debug_vect_send( name, &att);
 		}
 		
 		if(time.flg_50hz == 1){
 			time.flg_50hz = 0;
-			
 			AHRS_get_euler(&attitude);
-			AHRS_get_gyro(&gyro);
+			AHRS_get_omega(&gyro);
 			Mavlink_att_send(&attitude, &gyro);
 		}
 		
@@ -109,8 +97,9 @@ int32_t main(void){
 			
 			AHRS_read_imu();
 			
-			AHRS_dcm_update((float)(start - rev_update) / 1000000.f);
-			rev_update = start;
+			now = get_micros();
+			AHRS_dcm_update((float)(now - rev_update) / 1000000.f);
+			rev_update = now;
 			
 			AHRS_dcm_normalize();
 			AHRS_drift_correction();
