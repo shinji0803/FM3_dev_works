@@ -8,8 +8,8 @@ static Vector3f gyroOffset;
 static void init_rotation_matrix(Matrix3f *m, float yaw, float pitch, float roll);
 static uint8_t check_gyro_calib_data(Vector3f *g);
 
-static Vector3f rawG, rawA, rawM;
-static Vector3f scaledG, scaledA, scaledM;
+static Vector3f rawG = { 0.0f, 0.0f, 0.0f}, rawA = { 0.0f, 0.0f, 0.0f}, rawM = { 0.0f, 0.0f, 0.0f};
+static Vector3f scaledG = { 0.0f, 0.0f, 0.0f}, scaledA = { 0.0f, 0.0f, 0.0f}, scaledM = { 0.0f, 0.0f, 0.0f};
 static float mag_heading = 0.0f;
 
 //DCM Parameter

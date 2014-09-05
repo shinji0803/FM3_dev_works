@@ -59,9 +59,9 @@ float AHRS_heading(Vector3f from); // get heading(Yaw) that corrected leaning
 #define Ki_YAW 0.00002f
 */
 
-#define Kp_ROLLPITCH 1.2f
+#define Kp_ROLLPITCH 1.4f
 #define Ki_ROLLPITCH 0.0001f
-#define Kp_YAW 2.0f
+#define Kp_YAW 2.5f
 #define Ki_YAW 0.001f
 
 /* Calibration Data */

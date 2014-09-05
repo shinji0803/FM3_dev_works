@@ -26,10 +26,13 @@ extern volatile timeFlg time;
 
 extern mavlink_message_t msg;
 
+volatile uint32_t now, rev_update, delta_time;
+
 int32_t main(void){
 	
 	int32_t size = 0;
-	uint32_t start, end, now, rev_update;
+	//uint32_t start, end;
+	
 
 	//èâä˙âªäJén
 	conio_init(57600UL);
@@ -89,22 +92,24 @@ int32_t main(void){
 			AHRS_get_euler(&attitude);
 			AHRS_get_omega(&gyro);
 			Mavlink_att_send(&attitude, &gyro);
+			
+			Mavlink_debug_send( 0, (float)(delta_time) / 1000000.f);
 		}
 		
 		if(time.flg_100hz == 1){
 			time.flg_100hz = 0;
-			start = get_micros();
 			
 			AHRS_read_imu();
 			
 			now = get_micros();
-			AHRS_dcm_update((float)(now - rev_update) / 1000000.f);
+			delta_time = now - rev_update;
+			AHRS_dcm_update((float)delta_time / 1000000.f);
+			//AHRS_dcm_update(0.01f);
 			rev_update = now;
 			
 			AHRS_dcm_normalize();
 			AHRS_drift_correction();
 			
-			end = get_micros();
 		}
 	} 
 }
@@ -130,7 +135,16 @@ inline void loop_50hz(){
 }
 
 inline void loop_100hz(){
-
+	/*
+	now = get_micros();
+	delta_time = now - rev_update;
+	//AHRS_dcm_update((float)(now - rev_update) / 1000000.f);
+	AHRS_dcm_update(0.01f);
+	rev_update = now;
+	
+	AHRS_dcm_normalize();
+	AHRS_drift_correction();
+	*/
 }
 
 inline void loop_200hz(){
