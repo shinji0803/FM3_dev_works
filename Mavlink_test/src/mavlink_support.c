@@ -100,10 +100,12 @@ void Mavlink_rx_check(void)
 		size = 1;
 		mavlink->BufRx(receive_buf, &size, UartDev_FLAG_NONBLOCKING);
 		
+		/*
 		if(size == 1){
 			if(receive_buf[0] == MAVLINK_STX) printf("\r\n");
 			printf("%2x ", receive_buf[0]);
 		}
+		*/
 	}
 }
 

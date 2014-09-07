@@ -28,7 +28,7 @@ void Init_DT(void){
 	FM3_DTIM->TIMER1CONTROL_f.TIMERSIZE = 0; //16bitカウンタ
 	
 	NVIC_EnableIRQ(DTIM_QDU_IRQn);	//DualTimer割り込み起動
-	//カウンタ初期値設定 0.001 * (1 / 72M) = 
+	//カウンタ初期値設定 0.001 * (1 / (72M / 16)) = 
 	FM3_DTIM->TIMER1LOAD = 0x1194;
 	FM3_DTIM->TIMER1CONTROL_f.TIMEREN = 1; //Timer1起動
 }
@@ -41,25 +41,11 @@ void SysTick_Handler(void){
 
 void DT_Handler(void){	//DT割込みハンドラ: 0.001sec毎
 	static uint16_t counter_1hz = 0, counter_20hz = 0, counter_50hz = 0, counter_100hz = 0, counter_200hz = 0;
-	
-	FM3_DTIM->TIMER1INTCLR = 0x01; //なんでもいいから書き込むと割込みクリア？
-	
-	if(counter_1hz >= 1000){	//1Hz : LED点滅周期
-		time.flg_1hz = 1;
-		loop_1hz();
-		counter_1hz  = 0;
-	}
-	
-	if(counter_20hz >= 50){	//20Hz : 表示周期
-		time.flg_20hz = 1;
-		loop_20hz();
-		counter_20hz = 0;
-	}
-	
-	if(counter_50hz >= 20){	//50Hz
-		time.flg_50hz = 1;
-		loop_50hz();
-		counter_50hz = 0;
+
+	if(counter_200hz >= 5){	//200Hz
+		time.flg_200hz = 1;
+		loop_200hz();
+		counter_200hz = 0;
 	}
 	
 	if(counter_100hz >= 10){	//100Hz
@@ -68,18 +54,32 @@ void DT_Handler(void){	//DT割込みハンドラ: 0.001sec毎
 		counter_100hz = 0;
 	}
 	
-	if(counter_200hz >= 5){	//200Hz : Flowデータ受信周期
-		time.flg_200hz = 1;
-		loop_200hz();
-		counter_200hz = 0;
+	if(counter_50hz >= 20){	//50Hz
+		time.flg_50hz = 1;
+		loop_50hz();
+		counter_50hz = 0;
 	}
-		
-	FM3_DTIM->TIMER1LOAD = 0x1194;
+	
+	if(counter_20hz >= 50){	//20Hz : 表示周期
+		time.flg_20hz = 1;
+		loop_20hz();
+		counter_20hz = 0;
+	}
+
+	if(counter_1hz >= 1000){	//1Hz : LED点滅周期
+		time.flg_1hz = 1;
+		loop_1hz();
+		counter_1hz  = 0;
+	}
+
 	counter_1hz ++;
 	counter_20hz ++;
 	counter_50hz ++;
 	counter_100hz ++;
 	counter_200hz ++;
+	
+	FM3_DTIM->TIMER1LOAD = 0x1194;
+	FM3_DTIM->TIMER1INTCLR = 0x01; //なんでもいいから書き込むと割込みクリア？
 }
 
 
